@@ -1,0 +1,37 @@
+{
+    "name": "wiseape/payum-sofortuberweisung",
+    "type": "library",
+    "description": "SofortUberweisung implementation for payum pamyent framework",
+    "keywords": [
+        "payment",
+        "sofortag",
+        "sofort ag",
+        "sofortbank",
+        "sofort bank",
+        "sofortuberweisung",
+        "sofortüberweisung",
+        "sofort uberweisung",
+        "sofort überweisung"
+    ],
+    "homepage": "http://www.wiseape.de",
+    "license": "LGPL-3.0+",
+    "authors": [
+        {
+            "name": "Ruben Rögels",
+            "email": "ruben.roegels@wiseape.de"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "payum/payum": "*"
+    },
+    "require-dev": {
+    },
+    "replace": {
+    },
+    "suggest": {
+    },
+    "autoload": {
+        "psr-0": { "Wiseape": "src/" }
+    }
+}
