@@ -108,7 +108,7 @@ class Api {
         $this->sofortLib->setReason(static::prepareString($fields['reason1'], $fields), isset($fields['reason2']) ? static::prepareString($fields['reason2'], $fields) : '');
 
         // check if success_url is set either in options or in fields
-        if(isset($this->options['success_url']) || isset($fields['sucess_url'])) {
+        if(isset($this->options['success_url']) || isset($fields['success_url'])) {
             $this->sofortLib->setSuccessUrl((isset($fields['success_url']) ? $fields['success_url'] : $this->options['success_url']));
         }
 
