@@ -82,8 +82,8 @@ class GetTransactionDataAction extends BaseApiAwareAction {
             $key = lcfirst(substr($method, 3));
             switch($method) {
                 case 'getReason':
-                    $output[$key . '1'] = $txnData->$txnData->{$method}(0, 0);
-                    $output[$key . '2'] = $txnData->$txnData->{$method}(0, 1);
+                    $output[$key . '1'] = $txnData->{$method}(0, 0);
+                    $output[$key . '2'] = $txnData->{$method}(0, 1);
                     break;
                 default:
                     $output[$key] = $txnData->{$method}();

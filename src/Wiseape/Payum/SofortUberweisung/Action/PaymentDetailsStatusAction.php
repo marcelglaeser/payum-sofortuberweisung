@@ -13,6 +13,8 @@ use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\StatusRequestInterface;
+use Wiseape\Payum\SofortUberweisung\Request\Api\GetTransactionDataRequest;
+use Wiseape\Payum\SofortUberweisung\Action\Api\GetTransactionDataAction;
 
 class PaymentDetailsStatusAction implements ActionInterface {
 
@@ -32,8 +34,8 @@ class PaymentDetailsStatusAction implements ActionInterface {
         /**
          * @todo add RuntimeException
          */
-        $code = $model['getStatus'];
-        $subcode = $model['getStatusReason'];
+        $code = $model['status'];
+        $subcode = $model['statusReason'];
 
         switch($code) {
             case Api::STATUS_LOSS:

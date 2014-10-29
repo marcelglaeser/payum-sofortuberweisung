@@ -18,6 +18,8 @@ class Api {
      * You'll find detailed explanation of all status (sub-)codes in
      * src/Wiseape/Payum/SofortUberweisung/Resources/doc/SOFORT-Ueberweisung-API-Dokumentation.pdf
      * beginning on page 21
+     *
+     * The initial state is "pending"
      */
     const STATUS_LOSS = 'loss';
     const SUB_LOSS = 'not_credited';
@@ -136,10 +138,14 @@ class Api {
 
     /**
      * 
-     * @param array $fields
+     * @param array|ArrayAccess $fields
      * @return \SofortLibTransactionData
      */
-    public function getTxnData(array $fields) {
+    public function getTxnData($fields) {
+        if(!is_array($fields)
+                && !($fields instanceof \ArrayAccess)) {
+            throw new \RuntimeException('$fields must be array or implement ArrayAccess.');
+        }
         $this->sofortLibTxnData->addTransaction($fields['txn']);
         $this->sofortLibTxnData->sendRequest();
         return $this->sofortLibTxnData;
