@@ -3,7 +3,9 @@
     "type": "library",
     "description": "SofortUberweisung implementation for payum pamyent framework",
     "keywords": [
-        "payment sofortuberweisung sofortag"
+        "payment",
+        "sofortuberweisung",
+        "sofortag"
     ],
     "homepage": "http://www.wiseape.de",
     "license": "LGPL-3.0+",
@@ -15,7 +17,7 @@
     ],
     "require": {
         "php": ">=5.3",
-        "payum/payum": "*"
+        "payum/core": "~0.10.0"
     },
     "require-dev": {
     },
