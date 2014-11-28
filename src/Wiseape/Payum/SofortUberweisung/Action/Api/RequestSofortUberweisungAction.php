@@ -10,7 +10,7 @@ namespace Wiseape\Payum\SofortUberweisung\Action\Api;
 
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Request\Http\RedirectUrlInteractiveRequest;
+use Payum\Core\Reply\HttpRedirect;
 use Wiseape\Payum\SofortUberweisung\Request\Api\RequestSofortUberweisungRequest;
 use Wiseape\Payum\SofortUberweisung\Exception\RuntimeException;
 
@@ -37,7 +37,7 @@ class RequestSofortUberweisungAction extends BaseApiAwareAction {
             $exception->setErrrorData($sofortLib->getErrors());
             throw $exception;
         } else {
-            throw new RedirectUrlInteractiveRequest($sofortLib->getPaymentUrl());
+            throw new HttpRedirect($sofortLib->getPaymentUrl());
         }
     }
 

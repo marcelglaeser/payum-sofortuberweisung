@@ -34,10 +34,9 @@ class GetTransactionDataAction extends BaseApiAwareAction {
      * {@inheritdoc}
      */
     public function supports($request) {
-        $model = $request->getModel();
         return $request instanceof GetTransactionDataRequest
                 && $request->getModel() instanceof \ArrayAccess
-                && $model['txn'];
+                && $request->getModel()['txn'];
     }
 
     protected static function handleReponse(\SofortLibTransactionData $txnData, $fields = array()) {

@@ -12,11 +12,9 @@ use Wiseape\Payum\SofortUberweisung\Api;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Request\StatusRequestInterface;
-use Wiseape\Payum\SofortUberweisung\Request\Api\GetTransactionDataRequest;
-use Wiseape\Payum\SofortUberweisung\Action\Api\GetTransactionDataAction;
+use Payum\Core\Request\GetStatusInterface;
 
-class PaymentDetailsStatusAction implements ActionInterface {
+class StatusAction implements ActionInterface {
 
     /**
      * 
@@ -31,21 +29,33 @@ class PaymentDetailsStatusAction implements ActionInterface {
 
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
+        if(!isset($model['txn']) || !strlen($model['txn'])) {
+            $request->markNew();
+            return;
+        }
+        
         /**
          * @todo add RuntimeException
          */
-        $code = $model['status'];
-        $subcode = $model['statusReason'];
+        if(!isset($model['status'])) {
+            $request->markUnknown();
+            return;
+        }
 
-        switch($code) {
+        $subcode = isset($model['statusReason']) ? $model['statusReason'] : null;
+
+        switch($model['status']) {
             case Api::STATUS_LOSS:
                 $request->markFailed();
                 break;
+            
             case Api::STATUS_PENDING:
                 $request->markPending();
                 break;
+            
             case Api::STATUS_RECEIVED:
                 switch($subcode) {
+                    default:
                     case Api::SUB_OVERPAYMENT:
                     case Api::SUB_PARTIALLY:
                         $request->markUnknown();
@@ -54,10 +64,11 @@ class PaymentDetailsStatusAction implements ActionInterface {
                         $request->markSuccess();
                         break;
                 }
-
                 break;
+            
             case Api::STATUS_REFUNDED:
                 switch($subcode) {
+                    default:
                     case Api::SUB_COMPENSATION:
                         $request->markUnknown();
                         break;
@@ -65,18 +76,17 @@ class PaymentDetailsStatusAction implements ActionInterface {
                         $request->markCanceled();
                         break;
                 }
-
                 break;
+            
             case Api::STATUS_UNTRACEABLE:
                 // should be pending, but we need it to be successful
                 //$request->markPending();
                 $request->markSuccess();
                 break;
+            
             default:
-                /**
-                 * @todo how to handle unknown status?
-                 */
                 $request->markUnknown();
+                break;
         }
     }
 
@@ -84,10 +94,8 @@ class PaymentDetailsStatusAction implements ActionInterface {
      * {@inheritdoc}
      */
     public function supports($request) {
-        $model = $request->getModel();
-        return $request instanceof StatusRequestInterface
-                && $model instanceof \ArrayAccess
-                && $model['txn'];
+        return $request instanceof GetStatusInterface
+                && $request->getModel() instanceof \ArrayAccess;
     }
 
 }

@@ -8,8 +8,8 @@
 
 namespace Wiseape\Payum\SofortUberweisung\Request\Api;
 
-use Payum\Core\Request\BaseModelRequest;
+use Payum\Core\Request\Generic;
 
-class RequestSofortUberweisungRequest extends BaseModelRequest {
+class RequestSofortUberweisungRequest extends Generic {
     
 }

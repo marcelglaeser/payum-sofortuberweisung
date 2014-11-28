@@ -9,13 +9,12 @@
 namespace Wiseape\Payum\SofortUberweisung\Action;
 
 use Payum\Core\Bridge\Spl\ArrayObject;
-use Payum\Core\Request\SyncRequest;
+use Payum\Core\Request\Sync;
 use Payum\Core\Action\PaymentAwareAction;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Wiseape\Payum\SofortUberweisung\Action\Api\GetTransactionDataAction;
 use Wiseape\Payum\SofortUberweisung\Request\Api\GetTransactionDataRequest;
 
-class PaymentDetailsSyncAction extends PaymentAwareAction {
+class SyncAction extends PaymentAwareAction {
 
     /**
      * {@inheritdoc}
@@ -34,8 +33,7 @@ class PaymentDetailsSyncAction extends PaymentAwareAction {
      * {@inheritdoc}
      */
     public function supports($request) {
-        $model = $request->getModel();
-        return $request instanceof SyncRequest && $model instanceof \ArrayAccess;
+        return $request instanceof Sync && $request->getModel() instanceof \ArrayAccess;
     }
 
 }

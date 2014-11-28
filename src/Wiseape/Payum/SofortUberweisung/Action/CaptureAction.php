@@ -11,11 +11,9 @@ namespace Wiseape\Payum\SofortUberweisung\Action;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Action\PaymentAwareAction;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Request\CaptureRequest;
-use Payum\Core\Request\SecuredCaptureRequest;
-use Payum\Core\Request\SyncRequest;
+use Payum\Core\Request\Capture;
+use Payum\Core\Request\Sync;
 use Wiseape\Payum\SofortUberweisung\Request\Api\RequestSofortUberweisungRequest;
-use Wiseape\Payum\SofortUberweisung\Model\SecurityToken;
 
 class CaptureAction extends PaymentAwareAction {
 
@@ -24,10 +22,10 @@ class CaptureAction extends PaymentAwareAction {
         if(!$this->supports($request)) {
             RequestNotSupportedException::createActionNotSupported($this, $request);
         }
-
+        
         $model = ArrayObject::ensureArrayObject($request->getModel());
-
-        if($request instanceof SecuredCaptureRequest) {
+        
+        if($request->getToken()) {
             if(!isset($model['success_url'])) {
                 $model['success_url'] = $request->getToken()->getTargetUrl();
             }
@@ -41,12 +39,11 @@ class CaptureAction extends PaymentAwareAction {
             $this->payment->execute(new RequestSofortUberweisungRequest($model));
         }
 
-        $this->payment->execute(new SyncRequest($model));
+        $this->payment->execute(new Sync($model));
     }
 
     public function supports($request) {
-        return $request instanceof CaptureRequest
-                && $request->getModel() instanceof \ArrayAccess;
+        return $request instanceof Capture && $request->getModel() instanceof \ArrayAccess;
     }
 
 }
