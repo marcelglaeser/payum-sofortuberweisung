@@ -36,8 +36,17 @@ class RuntimeException extends BaseRuntimeException {
     /**
      * @param array $data
      */
-    public function setErrrorData(array $data) {
+    public function setErrorData(array $data) {
         $this->errorData = $data;
+    }
+
+    /**
+     * @param array $errors
+     * @return string
+     */
+    public static function formatErrorMessage(array $errors) {
+        $error = $errors[0];
+        return (isset($error['field']) ? $error['field'] . ': ' : '') . '(' . $error['code'] . ') ' . $errors['message'];
     }
 
 }

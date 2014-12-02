@@ -46,6 +46,7 @@ class Api {
      */
     protected $options = array(
         'configkey' => null,
+        'timeout' => 1800,
     );
 
     /**
@@ -65,7 +66,11 @@ class Api {
     public function __construct(array $options) {
         $this->options = array_replace($this->options, $options);
 
-        if(!isset($this->options['configkey'])) {
+        if(!is_int($this->options['timeout']) || $this->options['timeout'] < 300) {
+            throw new InvalidArgumentException('The "timeout" option must be an integer >= 300.');
+        }
+
+        if(!strlen($this->options['configkey'])) {
             throw new InvalidArgumentException('The "configkey" option must be set.');
         }
 
@@ -73,7 +78,7 @@ class Api {
          * @todo check if there is a lib available on packagist or somwehere else
          */
         $sofortLibPath = dirname(__FILE__) . '/Resources/SofortLib-PHP-Payment-' . static::SOFORTLIB_VERSION . '/payment/sofortLibSofortueberweisung.inc.php';
-        if(file_exists($sofortLibPath)) {
+        if(is_file($sofortLibPath)) {
             require_once($sofortLibPath);
         } else {
             throw new InvalidArgumentException('Cannot find SofortLib library in version "' . static::SOFORTLIB_VERSION . '".');
@@ -82,13 +87,11 @@ class Api {
         $this->sofortLib = new \Sofortueberweisung($this->options['configkey']);
 
         $sofortLibTxnDataPath = dirname(__FILE__) . '/Resources/SofortLib-PHP-Payment-' . static::SOFORTLIB_VERSION . '/core/sofortLibTransactionData.inc.php';
-        if(file_exists($sofortLibTxnDataPath)) {
+        if(is_file($sofortLibTxnDataPath)) {
             require_once($sofortLibTxnDataPath);
         } else {
             throw new InvalidArgumentException('Cannot find SofortLibTransactionData library in version "' . static::SOFORTLIB_VERSION . '".');
         }
-
-        $this->sofortLibTxnData = new \SofortLibTransactionData($this->options['configkey']);
     }
 
     /**
@@ -96,14 +99,12 @@ class Api {
      * @param array $fields
      * @return \SofortUeberweisung
      */
-    public function doSofortUberweisung(array $fields) {
+    public function doSofortUberweisung(array $fields, &$timeout) {
         $this->sofortLib->setAmount($fields['amount']);
         $this->sofortLib->setCurrencyCode($fields['currency']);
 
         // setting bank account in this step is optional
-        if(isset($fields['bic'])
-                && isset($fields['iban'])
-                && isset($fields['holder'])) {
+        if(isset($fields['bic']) && isset($fields['iban']) && isset($fields['holder'])) {
             $this->sofortLib->setSenderSepaAccount($fields['bic'], $fields['iban'], $fields['holder']);
         }
 
@@ -124,6 +125,9 @@ class Api {
             $this->sofortLib->setNotificationUrl((isset($fields['notification_url']) ? $fields['notification_url'] : $this->options['notification_url']));
         }
 
+        $timeout = $fields['timeout'] ? $fields['timeout'] : $this->options['timeout'];
+        $this->sofortLib->setTimeout($timeout);
+
         /**
          * @todo what's this?
          */
@@ -137,18 +141,17 @@ class Api {
     }
 
     /**
-     * 
      * @param array|ArrayAccess $fields
      * @return \SofortLibTransactionData
      */
     public function getTxnData($fields) {
-        if(!is_array($fields)
-                && !($fields instanceof \ArrayAccess)) {
+        if(!is_array($fields) && !($fields instanceof \ArrayAccess)) {
             throw new \RuntimeException('$fields must be array or implement ArrayAccess.');
         }
-        $this->sofortLibTxnData->addTransaction($fields['txn']);
-        $this->sofortLibTxnData->sendRequest();
-        return $this->sofortLibTxnData;
+        $data = new \SofortLibTransactionData($this->options['configkey']);
+        $data->addTransaction($fields['txn']);
+        $data->sendRequest();
+        return $data;
     }
 
     /**

@@ -17,6 +17,7 @@ use Wiseape\Payum\SofortUberweisung\Action\CaptureAction;
 use Wiseape\Payum\SofortUberweisung\Action\FillOrderDetailsAction;
 use Wiseape\Payum\SofortUberweisung\Action\StatusAction;
 use Wiseape\Payum\SofortUberweisung\Action\SyncAction;
+use Wiseape\Payum\SofortUberweisung\Action\AuthorizeAction;
 
 class PaymentFactory {
 
@@ -30,13 +31,14 @@ class PaymentFactory {
         // Api Actions
         $payment->addAction(new RequestSofortUberweisungAction);
         $payment->addAction(new GetTransactionDataAction);
+        $payment->addAction(new FillOrderDetailsAction);
         
         // generic actions
         $payment->addAction(new \Payum\Core\Action\CaptureOrderAction);
         $payment->addAction(new CaptureAction);
+        $payment->addAction(new AuthorizeAction);
         $payment->addAction(new SyncAction);
         $payment->addAction(new StatusAction);
-        $payment->addAction(new FillOrderDetailsAction);
         $payment->addAction(new ExecuteSameRequestWithModelDetailsAction);
 
         return $payment;

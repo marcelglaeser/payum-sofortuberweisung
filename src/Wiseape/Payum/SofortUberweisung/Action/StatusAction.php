@@ -22,23 +22,27 @@ class StatusAction implements ActionInterface {
      * @throws type
      */
     public function execute($request) {
-        /** @var $request \Payum\Core\Request\StatusRequestInterface */
+        /* @var $request \Payum\Core\Request\GetStatusInterface */
         if(false == $this->supports($request)) {
             throw RequestNotSupportedException::createActionNotSupported($this, $request);
         }
 
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
+        if(!isset($model['status'])
+                && isset($model['txn'])
+                && $model['expires'] < time()) {
+            $request->markExpired();
+            return;
+        }
+
         if(!isset($model['txn']) || !strlen($model['txn'])) {
             $request->markNew();
             return;
         }
-        
-        /**
-         * @todo add RuntimeException
-         */
+
         if(!isset($model['status'])) {
-            $request->markUnknown();
+            $request->markNew();
             return;
         }
 
@@ -48,24 +52,23 @@ class StatusAction implements ActionInterface {
             case Api::STATUS_LOSS:
                 $request->markFailed();
                 break;
-            
+
             case Api::STATUS_PENDING:
-                $request->markPending();
+                $request->markCaptured();
                 break;
-            
+
             case Api::STATUS_RECEIVED:
                 switch($subcode) {
-                    default:
-                    case Api::SUB_OVERPAYMENT:
                     case Api::SUB_PARTIALLY:
                         $request->markUnknown();
                         break;
                     case Api::SUB_CREDITED:
-                        $request->markSuccess();
+                    case Api::SUB_OVERPAYMENT:
+                        $request->markCaptured();
                         break;
                 }
                 break;
-            
+
             case Api::STATUS_REFUNDED:
                 switch($subcode) {
                     default:
@@ -73,17 +76,17 @@ class StatusAction implements ActionInterface {
                         $request->markUnknown();
                         break;
                     case Api::SUB_REFUNDED:
-                        $request->markCanceled();
+                        $request->markRefunded();
                         break;
                 }
                 break;
-            
+
             case Api::STATUS_UNTRACEABLE:
                 // should be pending, but we need it to be successful
                 //$request->markPending();
-                $request->markSuccess();
+                $request->markCaptured();
                 break;
-            
+
             default:
                 $request->markUnknown();
                 break;
@@ -94,8 +97,7 @@ class StatusAction implements ActionInterface {
      * {@inheritdoc}
      */
     public function supports($request) {
-        return $request instanceof GetStatusInterface
-                && $request->getModel() instanceof \ArrayAccess;
+        return $request instanceof GetStatusInterface && $request->getModel() instanceof \ArrayAccess;
     }
 
 }

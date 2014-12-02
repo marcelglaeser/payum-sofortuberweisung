@@ -25,6 +25,10 @@ class GetTransactionDataAction extends BaseApiAwareAction {
 
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
+        if(!isset($model['txn'])) {
+            return;
+        }
+
         $response = static::handleReponse($this->api->getTxnData($model));
 
         $model->replace($response);
@@ -34,12 +38,14 @@ class GetTransactionDataAction extends BaseApiAwareAction {
      * {@inheritdoc}
      */
     public function supports($request) {
-        return $request instanceof GetTransactionDataRequest
-                && $request->getModel() instanceof \ArrayAccess
-                && $request->getModel()['txn'];
+        return $request instanceof GetTransactionDataRequest && $request->getModel() instanceof \ArrayAccess;
     }
 
     protected static function handleReponse(\SofortLibTransactionData $txnData, $fields = array()) {
+        if(!$txnData->getTransaction()) {
+            return array();
+        }
+
         $methods = array(
             'getAmount',
             'getAmountRefunded',

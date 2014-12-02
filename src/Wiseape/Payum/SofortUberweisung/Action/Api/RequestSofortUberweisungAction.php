@@ -10,7 +10,6 @@ namespace Wiseape\Payum\SofortUberweisung\Action\Api;
 
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Reply\HttpRedirect;
 use Wiseape\Payum\SofortUberweisung\Request\Api\RequestSofortUberweisungRequest;
 use Wiseape\Payum\SofortUberweisung\Exception\RuntimeException;
 
@@ -29,16 +28,23 @@ class RequestSofortUberweisungAction extends BaseApiAwareAction {
 
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
-        $sofortLib = $this->api->doSofortUberweisung((array) $model);
-        $model['txn'] = $sofortLib->getTransactionId();
+        if(isset($model['txn'])) {
+            return;
+        }
+
+        $timeout = null;
+        $sofortLib = $this->api->doSofortUberweisung((array) $model, $timeout);
 
         if($sofortLib->isError()) {
-            $exception = new RuntimeException('SofortLib responded with an error. Use RuntimeException::getErrorData() to get detailed SofortLib error messages.');
-            $exception->setErrrorData($sofortLib->getErrors());
+            $errors = $sofortLib->getErrors();
+            $exception = new RuntimeException(RuntimeException::formatErrorMessage($errors));
+            $exception->setErrorData($errors);
             throw $exception;
-        } else {
-            throw new HttpRedirect($sofortLib->getPaymentUrl());
         }
+
+        $model['txn'] = $sofortLib->getTransactionId();
+        $model['expires'] = time() + $timeout;
+        $model['payment_url'] = $sofortLib->getPaymentUrl();
     }
 
     public function supports($request) {
