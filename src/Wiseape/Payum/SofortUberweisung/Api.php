@@ -125,7 +125,7 @@ class Api {
             $this->sofortLib->setNotificationUrl((isset($fields['notification_url']) ? $fields['notification_url'] : $this->options['notification_url']));
         }
 
-        $timeout = $fields['timeout'] ? $fields['timeout'] : $this->options['timeout'];
+        $timeout = isset($fields['timeout']) ? $fields['timeout'] : $this->options['timeout'];
         $this->sofortLib->setTimeout($timeout);
 
         /**
