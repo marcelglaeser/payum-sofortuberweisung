@@ -46,7 +46,7 @@ class RuntimeException extends BaseRuntimeException {
      */
     public static function formatErrorMessage(array $errors) {
         $error = $errors[0];
-        return (isset($error['field']) ? $error['field'] . ': ' : '') . '(' . $error['code'] . ') ' . $errors['message'];
+        return (isset($error['field']) ? $error['field'] . ': ' : '') . '(' . $error['code'] . ') ' . $error['message'];
     }
 
 }
