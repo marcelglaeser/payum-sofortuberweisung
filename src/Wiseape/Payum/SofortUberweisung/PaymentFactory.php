@@ -38,8 +38,8 @@ class PaymentFactory {
         $payment->addAction(new CaptureAction);
         $payment->addAction(new AuthorizeAction);
         $payment->addAction(new SyncAction);
-        $payment->addAction(new StatusAction);
         $payment->addAction(new ExecuteSameRequestWithModelDetailsAction);
+        $payment->addAction(new StatusAction);
 
         return $payment;
     }
