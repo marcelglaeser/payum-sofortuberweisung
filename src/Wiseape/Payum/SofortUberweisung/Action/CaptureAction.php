@@ -40,6 +40,8 @@ class CaptureAction extends PaymentAwareAction {
             $this->payment->execute(new RequestSofortUberweisungRequest($model));
             $this->payment->execute(new Authorize($model));
         }
+
+        $this->payment->execute(new Sync($model));
     }
 
     public function supports($request) {
